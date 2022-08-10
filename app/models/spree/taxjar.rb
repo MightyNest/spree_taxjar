@@ -6,7 +6,7 @@ module Spree
       @order = order
       @shipment = shipment
       @reimbursement = reimbursement
-      @client = ::Taxjar::Client.new(api_key: Spree::Config[:taxjar_api_key])
+      @client = ::Taxjar::Client.new(client_params)
     end
 
     def create_refund_transaction_for_order
@@ -127,7 +127,10 @@ module Spree
       end
 
       def reimbursement_present?
-        @client.list_refunds(from_transaction_date: Date.today - 1, to_transaction_date: Date.today + 1).include?(@reimbursement.number)
+        @client.list_refunds(
+          from_transaction_date: (Date.today - 1).strftime('%Y/%m/%d'),
+          to_transaction_date: (Date.today + 1).strftime('%Y/%m/%d')
+        ).include?(@reimbursement.number)
       end
 
       def group_by_line_items
@@ -140,7 +143,7 @@ module Spree
           {
             quantity: return_items.length,
             product_identifier: item.variant.sku,
-            description: ActionView::Base.full_sanitizer.sanitize(item.variant.description).truncate(150),
+            description: ActionView::Base.full_sanitizer.sanitize(item.variant.description).try(:truncate, 150),
             unit_price: item.pre_tax_amount,
             product_tax_code: item.variant.tax_category.try(:tax_code)
           }
@@ -211,6 +214,16 @@ module Spree
         adjustments.select { |adjustment| adjustment.source_type != Spree::TaxRate.to_s }.map(&:amount).sum.to_f
       end
 
+      def client_params
+        {
+          api_key: Spree::Config[:taxjar_api_key],
+          api_url: api_url
+        }
+      end
+
+      def api_url
+        Spree::Config[:taxjar_sandbox_environment_enabled] ? ::Taxjar::API::Request::SANDBOX_API_URL : ::Taxjar::API::Request::DEFAULT_API_URL
+      end
 
   end
 end

@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.version     = '3.3.0'
   s.summary     = 'Spree extension to calculate sales tax in states of USA'
   s.description = 'Spree extension for providing TaxJar services in USA'
-  s.required_ruby_version = '>= 2.1.0'
+  s.required_ruby_version = '>= 2.3.0'
 
   s.author    = ['Nimish Gupta', 'Tanmay Sinha']
   s.email     = ['nimish.gupta@vinsol.com', 'tanmay@vinsol.com']
