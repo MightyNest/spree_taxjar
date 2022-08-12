@@ -7,6 +7,9 @@ module Spree
       @shipment = shipment
       @reimbursement = reimbursement
       @client = ::Taxjar::Client.new(client_params)
+      @client.set_api_config('headers', {
+        'x-api-version' => '2022-01-24'
+      })
     end
 
     def create_refund_transaction_for_order
